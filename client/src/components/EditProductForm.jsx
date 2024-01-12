@@ -22,17 +22,23 @@ function EditProductForm() {
   };
 
   const updateProduct = async () => {
-    await axios.put(`http://localhost:4001/products/${params.productId}`, {
-      name,
-      image: imageUrl,
-      price,
-      description,
-    });
-    navigate("/");
+    try {
+      console.log("coming");
+      await axios.put(`http://localhost:4001/products/${params.productId}`, {
+        name,
+        image: imageUrl,
+        price,
+        description,
+      });
+      navigate("/");
+    } catch {
+      console.log("error");
+    }
   };
 
   const handleUpdate = (event) => {
     event.preventDefault();
+
     updateProduct();
   };
 

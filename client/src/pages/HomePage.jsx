@@ -24,7 +24,7 @@ function HomePage() {
 
   const deleteProduct = async (productId) => {
     await axios.delete(`http://localhost:4001/products/${productId}`);
-    const newProducts = products.filter((product) => product.id !== productId);
+    const newProducts = products.filter((product) => product._id !== productId);
     setProducts(newProducts);
   };
 
