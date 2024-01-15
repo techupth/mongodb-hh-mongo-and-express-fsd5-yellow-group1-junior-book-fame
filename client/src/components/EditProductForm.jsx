@@ -10,15 +10,22 @@ function EditProductForm() {
   const [imageUrl, setImageUrl] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+
+  useEffect(() => {
+    getCurrentProduct();
+  }, []);
 
   const getCurrentProduct = async () => {
     const result = await axios(
       `http://localhost:4001/products/${params.productId}`
     );
-    setName(result.data.data.name);
-    setImageUrl(result.data.data.image);
-    setPrice(result.data.data.price);
-    setDescription(result.data.data.description);
+
+    setName(result.data.data[0].name);
+    setImageUrl(result.data.data[0].image);
+    setPrice(result.data.data[0].price);
+    setDescription(result.data.data[0].description);
+    setCategory(result.data.data[0].category);
   };
 
   const updateProduct = async () => {
@@ -41,10 +48,6 @@ function EditProductForm() {
 
     updateProduct();
   };
-
-  useEffect(() => {
-    getCurrentProduct();
-  }, []);
 
   return (
     <form className="product-form" onSubmit={handleUpdate}>
@@ -114,7 +117,14 @@ function EditProductForm() {
       <div className="input-container">
         <label>
           Category
-          <select id="category" name="category" value="">
+          <select
+            id="category"
+            name="category"
+            value={category}
+            onChange={(e) => {
+              setCategory(e.target.value);
+            }}
+          >
             <option disabled value="">
               -- Select a category --
             </option>

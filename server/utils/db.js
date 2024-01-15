@@ -11,3 +11,10 @@ console.log("------- Connecting to MongoDB Successfully -------");
 
 export const db = await client.db("practice-mongo");
 console.log("------- Create database successfully -------");
+
+try {
+  await db.createCollection("products");
+  console.log("------- Create collection successfully -------");
+} catch {
+  console.log("Collection already exists !");
+}

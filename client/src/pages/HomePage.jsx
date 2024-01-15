@@ -8,17 +8,49 @@ function HomePage() {
   const [products, setProducts] = useState([]);
   const [isError, setIsError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
+  const [inputSearch, setInputSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
 
-  const getProducts = async () => {
+  useEffect(() => {
+    const category = selectedCategory;
+    const name = inputSearch;
+    getProducts(category, name, currentPage);
+  }, [selectedCategory, inputSearch]);
+
+  const getProducts = async (category, name, currentPage) => {
     try {
       setIsError(false);
       setIsLoading(true);
-      const results = await axios("http://localhost:4001/products");
+
+      const results = await axios(
+        `http://localhost:4001/products?category=${category}&name=${name}&page=${currentPage}`
+      );
+
       setProducts(results.data.data);
+      setTotalPage(results.data.totalPages);
+
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
       setIsError(true);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPage) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      getProducts(selectedCategory, inputSearch, nextPage);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      const previousPage = currentPage - 1;
+      setCurrentPage(previousPage);
+      getProducts(selectedCategory, inputSearch, previousPage);
     }
   };
 
@@ -28,9 +60,13 @@ function HomePage() {
     setProducts(newProducts);
   };
 
-  useEffect(() => {
-    getProducts();
-  }, []);
+  const handleSelectCategory = async (e) => {
+    setSelectedCategory(e.target.value);
+  };
+
+  const handleSearch = async (e) => {
+    setInputSearch(e.target.value);
+  };
 
   return (
     <div>
@@ -48,19 +84,30 @@ function HomePage() {
         <div className="search-box">
           <label>
             Search product
-            <input type="text" placeholder="Search by name" />
+            <input
+              type="text"
+              placeholder="Search by name"
+              value={inputSearch}
+              onChange={handleSearch}
+            />
           </label>
         </div>
         <div className="category-filter">
           <label>
             View Category
-            <select id="category" name="category" value="it">
+            <select
+              id="category"
+              name="category"
+              value={selectedCategory}
+              onChange={handleSelectCategory}
+            >
               <option disabled value="">
                 -- Select a category --
               </option>
               <option value="it">IT</option>
               <option value="fashion">Fashion</option>
               <option value="food">Food</option>
+              <option value="">See all</option>
             </select>
           </label>
         </div>
@@ -86,7 +133,7 @@ function HomePage() {
                 <h1>Product name: {product.name} </h1>
                 <h2>Product price: {product.price}</h2>
                 <h3>Category: IT</h3>
-                <h3>Created Time: 1 Jan 2011, 00:00:00</h3>
+                <h3>Created Time: {product.created}</h3>
                 <p>Product description: {product.description} </p>
                 <div className="product-actions">
                   <button
@@ -124,10 +171,16 @@ function HomePage() {
       </div>
 
       <div className="pagination">
-        <button className="previous-button">Previous</button>
-        <button className="next-button">Next</button>
+        <button className="previous-button" onClick={handlePreviousPage}>
+          Previous
+        </button>
+        <button className="next-button" onClick={handleNextPage}>
+          Next
+        </button>
       </div>
-      <div className="pages">1/ total page</div>
+      <div className="pages">
+        {currentPage}/ {totalPage}
+      </div>
     </div>
   );
 }
